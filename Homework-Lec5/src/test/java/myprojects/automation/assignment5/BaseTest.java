@@ -2,19 +2,25 @@ package myprojects.automation.assignment5;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
+
+import static com.sun.xml.internal.ws.policy.sourcemodel.wspolicy.XmlToken.Optional;
 
 /**
  * Base script functionality, can be used for all Selenium scripts.
  */
 public abstract class BaseTest {
-    protected EventFiringWebDriver driver;
+    protected WebDriver driver;
     protected GeneralActions actions;
     protected boolean isMobileTesting;
 
@@ -32,6 +38,15 @@ public abstract class BaseTest {
         // driver = new EventFiringWebDriver(....);
         // driver.register(new EventHandler());
         // ...
+        try {
+            DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+            driver = new RemoteWebDriver(
+                    new URL("http://localhost:4444/wd/hub"),
+                    capabilities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SkipException("Unable to create RemoteWebDriver instance!");
+        }
 
         driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
         driver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
